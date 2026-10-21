@@ -1,0 +1,12 @@
+{
+  "name": "lazer-realm-dump",
+  "private": true,
+  "type": "module",
+  "description": "Reads skin file mappings from a copy of osu!lazer's client.realm",
+  "dependencies": {
+    "realm": "12.15.0"
+  },
+  "allowScripts": {
+    "realm@12.15.0": true
+  }
+}
