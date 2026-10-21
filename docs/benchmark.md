@@ -1,4 +1,4 @@
-# Benchmark (v0.1.0, 2026-10-21)
+# Benchmark (2026-10-21)
 
 The classifier was evaluated on two labeled sets. Labels are keyed by image SHA-256.
 
@@ -67,6 +67,11 @@ Python, run in-process on the development library: median 34 ms per skin, slowes
 Running one process per skin, all 43 skins take 13.6 s; process start-up (OpenCV import)
 dominates. Peak RSS for a single skin is at most 264 MB, with 40 000 px LN bodies.
 
+Rust (v0.2.0) scored against the same labels gives identical numbers on both sets. Its
+decisions match Python on all 3192 columns (`benchmarks/parity.py`). It classifies 984 skin
+folders in 1.45 s on 32 threads, and the 43 development skins as `.osk` in 0.20 s.
+Details are in [rust-port.md](rust-port.md).
+
 ## Reproduce
 
 ```sh
@@ -74,4 +79,7 @@ uv run python tools/lazer_export.py /tmp/lazer-skins          # development set 
 uv run python benchmarks/fetch_heldout.py /tmp/heldout         # held-out set
 tools/run_all.sh /tmp/heldout out/heldout --details --no-content-hash
 uv run python benchmarks/evaluate.py benchmarks/labels-heldout.json out/heldout/*.json
+rust/target/release/mania-skin-classify scan /tmp/heldout -o out/heldout.jsonl --details
+uv run python benchmarks/evaluate.py benchmarks/labels-heldout.json out/heldout.jsonl
+uv run python benchmarks/parity.py out/heldout.jsonl out/heldout
 ```

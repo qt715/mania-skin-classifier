@@ -5,3 +5,4 @@ dist/
 .pytest_cache/
 tools/lazer-realm-dump/node_modules/
 /out/
+rust/target/

@@ -1,0 +1,45 @@
+name: release
+
+# Builds the Rust binary for each platform and attaches it to the GitHub release of the tag.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl, exe: mania-skin-classify }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, exe: mania-skin-classify.exe }
+          - { os: macos-latest, target: aarch64-apple-darwin, exe: mania-skin-classify }
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - run: cargo build --release --locked --target ${{ matrix.target }}
+      - name: package
+        run: |
+          name=mania-skin-classify-${GITHUB_REF_NAME}-${{ matrix.target }}
+          mkdir "$name"
+          cp "target/${{ matrix.target }}/release/${{ matrix.exe }}" ../README.md ../LICENSE "$name/"
+          if [ "${{ runner.os }}" = Windows ]; then 7z a "$name.zip" "$name" >/dev/null; echo "ASSET=rust/$name.zip" >> "$GITHUB_ENV"
+          else tar czf "$name.tar.gz" "$name"; echo "ASSET=rust/$name.tar.gz" >> "$GITHUB_ENV"; fi
+      - name: upload
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "See docs/benchmark.md and docs/rust-port.md." || true
+          gh release upload "$GITHUB_REF_NAME" "$ASSET" --clobber

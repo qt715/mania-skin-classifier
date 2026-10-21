@@ -1,0 +1,23 @@
+[package]
+name = "mania-skin-classify"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Classify osu!mania skins by note shape and cut (Percy) LNs per key mode"
+license = "MIT"
+repository = "https://github.com/qt715/mania-skin-classifier"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+
+[dependencies]
+clap = { version = "4.6.7", features = ["derive"] }
+crossbeam-channel = "0.5.17"
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "bmp", "webp", "tiff", "tga", "ico"] }
+png = "0.18.1"
+rayon = "1.12.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.154", features = ["preserve_order"] }
+sha2 = "0.11.1"
+zip = { version = "9.0.5", default-features = false, features = ["deflate", "deflate64"] }

@@ -4,7 +4,8 @@
 Labels are keyed by SHA-256 of the image file, so they apply to any copy of the skin
 (folder, .osk, lazer import) and stay valid when skins are renamed.
 
-Usage: benchmarks/evaluate.py LABELS.json RESULT.json [RESULT.json...]
+Usage: benchmarks/evaluate.py LABELS.json RESULT.json|RESULTS.jsonl [...]
+(`.jsonl` is the Rust `scan --details` output; records with an error are skipped.)
 Reports: per-sprite confusion matrix (distinct images), per-column accuracy, per-key-mode
 exact match of note_shapes and ln_cut (labels aggregated with the classifier's own rules).
 """
@@ -41,8 +42,13 @@ def main() -> int:
     mismatches: list[str] = []
     unlabeled = 0
 
+    results = []
     for f in sys.argv[2:]:
-        r = json.loads(Path(f).read_text())
+        if f.endswith(".jsonl"):
+            results += [(f, r) for r in map(json.loads, Path(f).read_text().splitlines()) if r.get("error") is None]
+        else:
+            results.append((f, json.loads(Path(f).read_text())))
+    for f, r in results:
         if "details" not in r:
             raise SystemExit(f"{f}: run the classifier with --details")
         skin = r["skin"]["name"]

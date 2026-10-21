@@ -4,10 +4,25 @@ Classifies one osu!mania skin per run: for every key mode the skin declares, whi
 shapes it uses (`circle`, `arrow`, `bar`, `etc`) and whether its long notes are cut
 ("Percy" LNs). Output is JSON meant to be imported into a skin database such as osuck.
 
-This Python implementation is the reference. A Rust port for bulk runs over thousands of
-skins is planned; its contract is in [docs/rust-port.md](docs/rust-port.md).
+There are two implementations with identical decisions. The Python package is the reference.
+The Rust binary in `rust/` runs bulk passes over thousands of skins at hundreds of skins per
+second; see [docs/rust-port.md](docs/rust-port.md).
 
-## Install and run
+## Rust binary (bulk runs)
+
+Download a prebuilt binary from the GitHub releases, or build with `cargo build --release`
+in `rust/`.
+
+```sh
+mania-skin-classify path/to/skin.osk                       # one skin, same JSON as Python
+mania-skin-classify scan /srv/skins -o results.jsonl --csv key_modes.csv
+mania-skin-classify scan --list ids.tsv -o results.jsonl --resume   # id<TAB>path lines
+```
+
+`results.jsonl` holds one record per skin (`id`, the single-skin object, `error`).
+`key_modes.csv` holds one row per skin and key mode, ready for a database import.
+
+## Python reference: install and run
 
 ```sh
 uv sync
