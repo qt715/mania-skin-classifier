@@ -234,8 +234,8 @@ fn ghost_end_and_cover_band_are_background() {
         }
     }
     let mut band = percy_body(64, 4000, 0);
-    for p in band.data[..70 * 64 * 4].chunks_exact_mut(4) {
-        p.copy_from_slice(&[0, 0, 0, 255]);
+    for p in band.data[..70 * 64 * 4].as_chunks_mut::<4>().0 {
+        *p = [0, 0, 0, 255];
     }
     let r = run(&ln_skin(
         "",

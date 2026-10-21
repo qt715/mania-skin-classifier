@@ -20,7 +20,7 @@ fn row(top: &Rgba, y: usize) -> &[u8] {
 fn row_matches(r: &[u8], blank: i64, colour: &[f64; 4], tol: i64) -> (f64, bool) {
     let mut vis = 0usize;
     let mut maxd = 0f64;
-    for p in r.chunks_exact(4) {
+    for p in r.as_chunks::<4>().0 {
         if p[3] as i64 > blank {
             vis += 1;
             for c in 0..4 {
@@ -38,8 +38,10 @@ fn uniform_band(top: &Rgba, t: &Thresholds) -> usize {
         return 0;
     }
     let first = row(top, 0);
-    let vis: Vec<&[u8]> = first
-        .chunks_exact(4)
+    let vis: Vec<&[u8; 4]> = first
+        .as_chunks::<4>()
+        .0
+        .iter()
         .filter(|p| p[3] as i64 > t.blank_alpha)
         .collect();
     if (vis.len() as f64 / top.width as f64) < 0.9 {

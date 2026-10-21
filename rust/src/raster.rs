@@ -318,7 +318,7 @@ pub fn fill_polygon(w: usize, h: usize, pts: &[(f64, f64)], ss: usize) -> Gray {
         }
         xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let row = sy / ss;
-        for pair in xs.chunks_exact(2) {
+        for pair in xs.as_chunks::<2>().0 {
             // sample x positions: (sx + 0.5)/ss - 0.5 within [pair0, pair1]
             let lo = ((pair[0] + 0.5) * ss as f64 - 0.5).ceil().max(0.0) as isize;
             let hi = ((pair[1] + 0.5) * ss as f64 - 0.5)
